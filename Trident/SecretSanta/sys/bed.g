@@ -6,12 +6,14 @@ if !move.axes[0].homed || !move.axes[1].homed || !move.axes[2].homed
   echo "not all axes homed, homing axes first"
   G28
 
+M913 Z50 ; lower Z power incase we are testing beta build
+
 G30 P0 X15 Y15 Z-99999       ; probe near a leadscrew
 G30 P1 X175 Y335 Z-99999     ; probe near a leadscrew
 G30 P2 X335 Y15 Z-99999 S3   ; probe near a leadscrew and calibrate 3 motors
 echo "Current rough pass deviation: " ^ move.calibration.initial.deviation
 
-M558 H5 F120
+M558 H7 F120
 while move.calibration.initial.deviation > 0.005
     if iterations >= 5
       echo "Error: Max attemps failed. Deviation: " ^ move.calibration.initial.deviation
@@ -26,7 +28,8 @@ echo "Final deviation: " ^ move.calibration.initial.deviation
 G1 X175 Y175 Z10 F18000
 
                              ; Reset probe dive height and speed
-M558 H5 F600:120 
+M558 H7 F600:120 
 
+M913 Z100  ;Restore full power to Z
                              ; rehome Z as the absolute height of the z plane may have shifted
 G28 Z

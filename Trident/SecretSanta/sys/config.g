@@ -4,19 +4,13 @@
 ; Sun Apr 09 2023 19:37:03 GMT-0600 (Mountain Daylight Time)
 
 ; General preferences
+
 G90                                                 ; send absolute coordinates...
 M83                                                 ; ...but relative extruder moves
 M550 P"SecretSanta"                                 ; set printer name
 M669 K1                                             ; select CoreXY mode
-G4 S5   				                            ; wait 4s for expansion boards to start
-                                                    ;
-;==================================                 ;
-; Network                                           ;
-;==================================                 ;
-M552 S1                                             ; enable network
-M586 P0 S1                                          ; enable HTTP
-M586 P1 S0                                          ; disable FTP
-M586 P2 S0                                          ; disable Telnet
+m80 C"pson"	
+G4 S10   				                            ; wait 10s for expansion boards to start
                                                     ;
 ;==================================                 ;
 ; Drives                                            ;
@@ -26,17 +20,17 @@ M586 P2 S0                                          ; disable Telnet
 ;    _____---_____                                  ;    
 ;    |0.0|   |0.2|                                  ;
 ;     ---     ---                                   ;
-M569 P0.0 S1 D3                                     ; physical drive 0.0 goes forwards using default driver timings in Stealthchop  |Z0
-M569 P0.1 S1 D3                                     ; physical drive 0.1 goes forwards using default driver timings in Stealthchop |Z1
-M569 P0.2 S1 D3                                     ; physical drive 0.2 goes forwards using default driver timings in Stealthchop  |Z2
+M569 P0.0 S0 D3                                     ; physical drive 0.0 goes forwards using default driver timings in Stealthchop  |Z0
+M569 P0.1 S0 D3                                     ; physical drive 0.1 goes forwards using default driver timings in Stealthchop |Z1
+M569 P0.2 S0 D3                                     ; physical drive 0.2 goes forwards using default driver timings in Stealthchop  |Z2
 ; X/Y & E                                           ;
-M569 P0.3 S0 D2                                     ; physical drive 0.3 goes forwards using default driver timings in Spreadcycle  |B(x)
-M569 P0.4 S0 D2                                     ; physical drive 0.4 goes forwards using default driver timings in Spreadcycle  |A(y)
+M569 P0.3 S1 D2                                     ; physical drive 0.3 goes forwards using default driver timings in Spreadcycle  |B(x)
+M569 P0.4 S1 D2                                     ; physical drive 0.4 goes forwards using default driver timings in Spreadcycle  |A(y)
 M569 P124.0 S1 D2                                   ; physical drive 124.0 goes forwards using default driver timings in Spreadcycle on SB2040 tool-board
                                                     ;
 M584 X0.4 Y0.3 Z0.0:0.1:0.2 E124.0                  ; set drive mapping
 M350 X16 Y16 Z16 E16 I1                             ; configure microstepping with interpolation
-M92 X160.00 Y160.00 Z800.00 E708.00                 ; set steps per mm. [NOTE .9 motors on X/Y]
+M92 X160.00 Y160.00 Z800.00 E606.5                 ; set steps per mm. [NOTE .9 motors on X/Y]
                                                     ;
 ;==================================                 ;
 ; Speeds                                            ;
@@ -56,10 +50,9 @@ M208 X349 Y350 Z240 S0                              ; set axis maxima -Stock Tri
 ;==================================                 ;
 ; Endstops                                          ;
 ;==================================                 ; X/Y endstop on Voron pcb w/cable X+gnd to io1 Y to io2 -No voltage
-M574 X2 S1 P"io1"                                   ; configure switch-type (e.g. microswitch) endstop for high end on X via pin io1
-M574 Y2 S1 P"io2"                                   ; configure switch-type (e.g. microswitch) endstop for high end on Y via pin io2
-                                                    ;   
-;M591 D0 P3 C"124.io0.in" S1 R80:120 L25.52 E3.0     ; Duet3d rotating magnetic sensor for extruder drive 0 is connected to 124.io0 endstop input, enabled
+M574 X2 S1 P"^0.io8.in"								; Voron endstop PCB NO VCC Gnd+out for X 
+M574 Y2 S1 P"^0.io8.out"							;      Gnd+in for Y
+M591 D0 P3 C"124.io0.in" S1 R80:120 L25.52 E3.0     ; Duet3d rotating magnetic sensor for extruder drive 0 is connected to 124.io0 endstop input, enabled
                                                     ;
 ;==================================                 ;
 ; Z-Probe (TAP)                                     ;    
@@ -73,13 +66,13 @@ M557 X15:335 Y15:335 P8                            ; define mesh grid
 ; Heaters                                           ;
 ;==================================                 ;
 ; Bed                                               ;
-M308 S0 P"out3" Y"thermistor" T100000 B4130 A"Bed"  ; configure sensor 0 as thermistor on pin ADC_0
-M950 H0 C"bed" T0 Q50                               ; create bed heater output on bed and map it to sensor 0
+M308 S0 P"temp0" Y"thermistor" T100000 B4130 A"Bed"  ; configure sensor 0 as thermistor on pin ADC_0
+M950 H0 C"out0" T0 Q50                               ; create bed heater output on bed and map it to sensor 0
 M307 H0 B0 S1.00                                    ; disable bang-bang mode for the bed heater and set PWM limit
 M140 H0                                             ; map heated bed to heater 0
 M143 H0 S120                                        ; set temperature limit for heater 0 to 120C
 ; Tool 0                                            ;
-M308 S1 P"124.temp0" Y"thermistor" T100000 B3950 A"Rapido"   ; configure sensor 1 as thermistor on pin ADC_1
+M308 S1 P"124.temp0" Y"thermistor" T100000 B4267 C6.5338987554e-8 A"Rapido"   ; configure sensor 1 as thermistor on pin ADC_1
 M950 H1 C"124.out0" T1                              ; create nozzle heater output on heat0 and map it to sensor 1
 M307 H1 B0 S1.00                                    ; disable bang-bang mode for heater  and set PWM limit
 M143 H1 S280                                        ; set temperature limit for heater 1 to 280C
@@ -87,30 +80,36 @@ M143 H1 S280                                        ; set temperature limit for 
 ;==================================                 ;
 ; Sensors                                           ;
 ;==================================                 ;
-M308 S3 A"Super8" Y"mcu-temp"                       ; Sensor 3 Built in temp monitor in STM32H7
+M308 S3 A"Duet" Y"mcu-temp"                       ; Sensor 3 Built in temp monitor in STM32H7
 M308 S4 A"SB2040" Y"mcu-temp" P"124.dummy"          ; Sensor 4 Built in temp monitor in RP2040
                                                     ;
 ;==================================                 ;
 ; Fans                                              ;
 ;==================================                 ;
-M950 F0 C"124.out1" Q100                            ; create fan 0 on pin 124.out1 and set its frequency
+M950 F0 C"124.out2" Q100                            ; create fan 0 on pin 124.out2 and set its frequency
 M106 P0 S0 H-1                                      ; set fan 0 value. Thermostatic control is turned off PART COOLING TOOL 0
-M950 F1 C"124.out2" Q100                            ; create fan 1 on pin 124.out2 and set its frequency
+M950 F1 C"124.out1" Q100                            ; create fan 1 on pin 124.out1 and set its frequency
 M106 P1 L255 S255 H1 T45                            ; set fan 1 value. Thermostatic control is turned to hotend 45+ HEATSINK
-                                                    ;
+
 M950 F2 C"124.out3" Q100                            ; create fan 2 on pin 124.out3 and set its frequency
 M106 P2 H4 L0.2 T30:50                              ; set fan 2 value. Thermostatic control is turned to SB2040 50+ TOOL_PCB
                                                     ;
-M950 F3 C"0.fan0" Q100                              ; create fan 3 on pin 0.fan0 and set its frequency
-M106 P3 S1 H3 T40 C"RCase"                          ; set fan 3 value. hermostatic control is turned to 35 + RIGHT ELEC CASE
-M950 F4 C"0.fan1" Q100                              ; create fan 4 on pin 0.fan0 and set its frequency
-M106 P4 S1 H3 T40 C"LCase"                          ; set fan 4 value. 3 value. hermostatic control is turned to 35+ LEFT ELEC CASE
+M950 F3 C"!out4+out4.tach"								; Noctau 12v PWM 4 wire on out 3
+M106 P3 H3 L0.2 T25:55 C"R Electronics Fan"				;
+														;
+M950 F4 C"!out5+out5.tach"								; Noctau 12v PWM 4 wire on out 3
+M106 P4 H3 L0.2 T25:55 C"L Electronics Fan"				;
                                                     ;
+;==================================						;
+; DISPLAY												;
+;==================================						;
+M575 P1 S1 B57600	
+
                                                     ;
 ;==================================                 ;
 ; Lights                                            ;
 ;==================================                 ;
-M950 F5 C"0.heat4" Q500                             ;
+M950 F5 C"0.OUT1" Q500                             ;
 M106 P5 H-1 L064 C"Lights"                          ;
 ;==================================                 ;
 ; SB LED                                            ;
@@ -126,16 +125,12 @@ M563 P0 S"Tool 0" D0 H1 F0                          ; define tool 0
 G10 P0 X0 Y0 Z0                                     ; set tool 0 axis offsets
 G10 P0 R0 S0                                        ; set initial tool 0 active and standby temperatures to 0C
                                                     ;
-;==================================                 ;
-; DISPLAY                                           ;
-;==================================                 ;
-M98 P"screen.g"                                     ; Load the Mini12864 and set up its lighting
                                                     ;
 ;==================================                 ;
 ; Miscellaneous                                     ;
 ;==================================                 ;    
 M572 D0 S0.025										; Pressure Advance for Tool 0
-M593 P"zvdd" F38 S0.1								; input shaping
+M593 P"ei2" F39 S0.1								; input shaping
                                                     ;
 T0                                                  ; select first(default) tool
 M501                                                ; read config-override.g

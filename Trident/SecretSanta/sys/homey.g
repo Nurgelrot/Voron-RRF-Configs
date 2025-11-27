@@ -3,7 +3,7 @@ if !move.axes[0].homed
 	G91
 	G1 H2 Z5 F2400
 	G90
-
+M913 X75 Y75
 ; reset current position to 0
 G92 Y0
 
@@ -17,3 +17,4 @@ G1 Y-5 F8000
 ; Move slowly to Y axis endstop once more (second pass)
 G1 Y10 F360 H1
 G90
+M913 X100 Y100
