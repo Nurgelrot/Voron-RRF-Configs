@@ -6,7 +6,7 @@
 - DarkMatter Micron180
 
 ## Voron Trident 
-- SecretSanta 350mm
+- SecretSanta 350mm  Fysetc Kit Won in 2022 Voron Design Xmas event.
 
 ## Voron V0
 - Mulberry 
