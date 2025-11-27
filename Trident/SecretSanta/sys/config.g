@@ -1,4 +1,4 @@
-; Duet3 ^hc
+; Duet3 6HC
 ; General preferences
 
 G90                                                 ; send absolute coordinates...
