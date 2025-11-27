@@ -1,8 +1,4 @@
-; Configuration file for Fly Super8 Pro H723 (firmware version 3)
-; executed by the firmware on start-up
-;
-; Sun Apr 09 2023 19:37:03 GMT-0600 (Mountain Daylight Time)
-
+; Duet3 ^hc
 ; General preferences
 
 G90                                                 ; send absolute coordinates...
