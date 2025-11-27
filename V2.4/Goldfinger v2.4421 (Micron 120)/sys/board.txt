@@ -10,41 +10,22 @@
 //    : Each config entry must be all on a single line.
 
 board = biqoctopuspro_1.0; 
+wifi.moduleType = esp32eth
 
-//LED blinks to indicate Platform is spinning or other diagnostic 
-//Comment out or set to NoPin if not wanted.
-//leds.diagnostic = A.13; 
-
-
-heat.tempSensePins = {bedtemp,e0temp}; //Max of 3 entries
-//heat.spiTempSensorCSPins = { }; //Max of 2 entries
-
-//ESP RX/TX Settings
-8266wifi.serialRxTxPins = { D.9, D.8 } ;
-serial.aux.rxTxPins = { A.10, A.9 }
-
-//ESP Settings
-8266wifi.espDataReadyPin = D.7;
-8266wifi.TfrReadyPin = D.10;
-8266wifi.espResetPin = G.7;
-
-8266wifi.csPin = B.12;
-
-//TMC Smart Drivers
-stepper.numSmartDrivers = 7;
-//TMC 5160 Drivers
-stepper.num5160Drivers = 7;
+stepper.DriverType = {tmc5160,tmc5160,tmc5160,tmc5160,tmc5160,tmc5160,tmc5160}
 stepper.spiChannel = 0;
-/
+//stepper.csDelay=1
+
+//
 can.csPin = PD_3
 can.spiChannel = 2
 				
 //MINI 12864
-lcd.encoderPinA=BTN_EN1
-lcd.encoderPinB=BTN_EN2
-lcd.encoderPinSw=BTN_ENC
-lcd.lcdCSPin=LCD_EN
-lcd.lcdDCPin=LCD_RS
-lcd.spiChannel=0
+//lcd.encoderPinA=BTN_EN1
+//lcd.encoderPinB=BTN_EN2
+//lcd.encoderPinSw=BTN_ENC
+//lcd.lcdCSPin=LCD_EN
+//lcd.lcdDCPin=LCD_RS
+//lcd.spiChannel=0
 //lcd.lcdBeepPin=NoPin
 heat.spiTempSensorCSPins = {F.8, NoPin, NoPin, NoPin, NoPin, NoPin, NoPin, NoPin}

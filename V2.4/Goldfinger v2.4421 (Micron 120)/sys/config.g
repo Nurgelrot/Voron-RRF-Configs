@@ -13,17 +13,17 @@ G4 S5  				;wait 2s for expansion boards to start
 ; Network
 M552 S1                                        ; enable network
 M586 P0 S1                                     ; enable HTTP
-M586 P1 S0                                     ; disable FTP
-M586 P2 S0                                     ; disable Telnet
+;M586 P1 S0                                    ; disable FTP
+
 
 ; Display 
+M575 P1 S2 B57600
 
 
-;M98 P"screen.g"
 ; Drives
 M569 P0.0 S0 D2							       ; X (A Motor)
 M569 P0.1 S0 D2							       ; Y (B Motor)
-M569 P121.0 S0 D2                                ; E Orbiter2
+M569 P124.0 S0 D2                                ; E Orbiter2
 ; drive 3 empty
 M569 P0.3 S0 D3; V2						       ; Z0 Front Left
 M569 P0.4 S1 D3; V2						       ; Z1 Rear Left
@@ -33,13 +33,13 @@ M569 P0.6 S1 D3; V2						       ; Z3Front Right
 
 
 
-M584 Y0.0 X0.1 Z0.3:0.4:0.5:0.6 E121.0          ; set drive mapping
+M584 Y0.0 X0.1 Z0.3:0.4:0.5:0.6 E124.0          ; set drive mapping
 M350 X16 Y16 Z16 E16 I1                        ; configure microstepping with interpolation
-M92 X100.00 Y100.00 Z400.00 E562            ; set steps per mm
+M92 X100.00 Y100.00 Z720.00 E562            ; set steps per mm
 
-M566 X450.00 Y450.00 Z240.00 E300.00           ; set maximum instantaneous speed changes (mm/min)
-M203 X18000.00 Y18000.00 Z1200.00 E3600.00     ; set maximum speeds (mm/min)
-M201 X8000.00 Y8000.00 Z350.00 E600.00         ; set accelerations (mm/s^2)
+M566 X450.00 Y450.00 Z120.00 E300.00           ; set maximum instantaneous speed changes (mm/min)
+M203 X8000.00 Y8000.00 Z1200.00 E3600.00     ; set maximum speeds (mm/min)
+M201 X8000.00 Y8000.00 Z350.00 E1000.00         ; set accelerations (mm/s^2)
 
 ; Stepper driver currents
 ; set motor currents (mA) and motor idle factor in per cent
@@ -52,19 +52,21 @@ M208 X0 Y0 Z0 S1                               ; set axis minima
 M208 X114 Y122 Z105 S0                          ; set axis maxima
 
 ; Endstops
-M574 X2 S1 P"^121.io3.in"                            ; configure switch-type (e.g. microswitch) endstop for high end on X via pin xstop
+M574 X2 S1 P"^124.io0.in"                            ; configure switch-type (e.g. microswitch) endstop for high end on X via pin xstop
 M574 Y2 S1 P"ystop"                            ; configure switch-type (e.g. microswitch) endstop for high end on Y via pin ystop
-;M591 D0 P3 C"121.io1.in" S1 R70:130 L26.00 E3.0
+
 
 ; Bed Leveling Data
 M671 X-50:-50:170:170 Y-4.5:180:180:-4.5 S20   ; Define Z belts locations (Front_Left, Back_Left, Back_Right, Front_Right)
-M557 X15:105 Y30:100 P6                        ; Define bed mesh grid (inductive probe, positions include the Y offset!)
+M557 X15:105 Y30:100 P7                        ; Define bed mesh grid (inductive probe, positions include the Y offset!)
 
 
 ; Z-Probe
-M558 P8 C"^121.io0.in" T18000 F600:180 H2 A5   ; set Z probe type to KLICKY and the dive height + speeds
-G31 P500 X-2.5 Y30 Z0                          ; set Z probe trigger value, offset and trigger height
-                     
+;M558 P8 C"!^124.io1.in" T6000 F800 H3 A3   ; set Z probe type to KLICKY and the dive height + speeds
+;G31 P500 X0 Y0 Z0                          ; set Z probe trigger value, offset and trigger height
+M558 P8 C"^!124.io1.in" T6000 R1 F600 B1 A2 H5   ; analogue mode, 0.5 sec delay, 400mm/min dive speed, turn off heater during probing, two probes per point, 5mm Dive Height.
+G31 X0 Y0 Z0 P100      
+
 ; Bed Heater
 M308 S0 P"bedtemp" Y"thermistor" T100000 B4092 ; configure sensor 0 as thermistor on pin bedtemp
 M950 H0 C"bed" T0                              ; create bed heater output on bed and map it to sensor 0
@@ -74,19 +76,31 @@ M143 H0 S120                                   ; set temperature limit for heate
 M143 H0 S120                                   ; set temperature limit for heater 0 to 120C
 
 ; Tool Heater
-M308 S1 P"121.temp0" Y"thermistor" T100000 B4092  ; configure sensor 1 as thermistor on pin e0temp
-M950 H1 C"121.out0" T1                           ; create nozzle heater output on e0heat and map it to sensor 1
+M308 S1 P"124.temp0" Y"thermistor" T100000 B4658 C6.5338987554e-08  ; configure sensor 1 as thermistor on pin e0temp
+M950 H1 C"124.out0" T1                           ; create nozzle heater output on e0heat and map it to sensor 1
 M307 H1 B0 S1.00                               ; disable bang-bang mode for heater  and set PWM limit
 M143 H1 S280                                   ; set temperature limit for heater 1 to 280C
-
+;
+; Other Sensors
+M308 S3 A"Octo" Y"mcu-temp"
+M308 S4 A"SHT36" Y"mcu-temp" P"124.dummy"
 ; Fans
-M950 F0 C"121.out1" Q100                          ; create fan 0 on pin fan0 and set its frequency
+M950 F0 C"124.out1" Q100                          ; create fan 0 on pin fan0 and set its frequency
 M106 P0 S0 H-1                                 ; set fan 0 value. Thermostatic control is turned off
-M950 F1 C"121.out2" Q100                           ; create fan 1 on pin fan1 and set its frequency
+M950 F1 C"124.out2" Q100                           ; create fan 1 on pin fan1 and set its frequency
 M106 P1 S1 H1 T45                              ; set fan 1 value. Thermostatic control is turned on
+;
+; Case fans
+M950 F2 C"0.FAN0" 
+M106 P2 S1 H3 T45
+M950 F3 C"0.FAN1"
+M106 P3 S1 H3 T45
+
+
+
 
 ; Accelerometer
-M955 P121.0 I54
+M955 P124.0 I54
 
 ; Tools
 M563 P0 S"Revo" D0 H1 F0                       ; define tool 0
@@ -98,5 +112,5 @@ T0
 M501
 M572 D0 S0.055
 M593 P"zvd" F42 S0.10
-M98 P"screen.g"
+
 
